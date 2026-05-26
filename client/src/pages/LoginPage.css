@@ -28,7 +28,7 @@
 .login-header h1 {
   font-size: 26px;
   font-weight: 700;
-  color: #333;
+  color: #1a1a1a;
   margin-bottom: 4px;
 }
 
@@ -73,9 +73,9 @@
 }
 
 .login-group input:focus {
-  border-color: #667eea;
+  border-color: #11998e;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.15);
 }
 
 .pwd-wrap {
@@ -102,7 +102,7 @@
 .login-btn {
   width: 100%;
   padding: 13px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -135,9 +135,9 @@
 }
 
 .login-hint code {
-  background: #f4f4f4;
+  background: #e6faf5;
   padding: 2px 8px;
   border-radius: 4px;
-  color: #667eea;
+  color: #11998e;
   font-size: 12px;
 }

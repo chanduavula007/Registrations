@@ -9,7 +9,7 @@
 .sidebar {
   width: 240px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   display: flex;
   flex-direction: column;
   padding: 28px 0 20px;
@@ -172,8 +172,8 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-.stat-total { border-left: 4px solid #667eea; }
-.stat-card:not(.stat-total) { border-left: 4px solid #764ba2; }
+.stat-total { border-left: 4px solid #11998e; }
+.stat-card:not(.stat-total) { border-left: 4px solid #38ef7d; }
 
 .stat-icon { font-size: 28px; }
 
@@ -252,7 +252,7 @@
 }
 
 .students-table thead tr {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
 .students-table th {
@@ -271,8 +271,8 @@
   transition: background 0.15s;
 }
 
-.students-table tbody tr:hover { background: #f7f8ff; }
-.students-table tbody tr.row-active { background: #eef2ff; }
+.students-table tbody tr:hover { background: #f0fdf9; }
+.students-table tbody tr.row-active { background: #e6faf5; }
 
 .students-table td {
   padding: 12px 14px;
@@ -284,8 +284,8 @@
 .td-name { font-weight: 600; color: #2d3748; }
 
 .id-badge {
-  background: #eef2ff;
-  color: #667eea;
+  background: #e6faf5;
+  color: #11998e;
   padding: 3px 8px;
   border-radius: 6px;
   font-size: 11px;
@@ -367,7 +367,7 @@
 .detail-avatar {
   width: 52px; height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #11998e, #38ef7d);
   color: #fff;
   font-size: 20px;
   font-weight: 700;
@@ -391,10 +391,10 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #667eea;
+  color: #11998e;
   margin-bottom: 10px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #e8ecff;
+  border-bottom: 1px solid #e6faf5;
 }
 
 .detail-row {

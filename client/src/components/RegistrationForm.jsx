@@ -11,57 +11,65 @@ const INITIAL = {
   terms: false,
 }
 
-const SUBJECTS = ['Mathematics','Physics','Chemistry','Biology','Computer Science','Economics']
+const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Economics']
+
+// ── Field wrapper — defined OUTSIDE component to prevent cursor jump ──
+function FormField({ id, label, required, hint, error, children }) {
+  return (
+    <div className="form-group">
+      <label htmlFor={id}>
+        {label} {required && <span className="req">*</span>}
+      </label>
+      {children}
+      {error && <span className="err">{error}</span>}
+      {hint && !error && <span className="hint">{hint}</span>}
+    </div>
+  )
+}
 
 export default function RegistrationForm({ onRegistered }) {
-  const [form, setForm]       = useState(INITIAL)
-  const [errors, setErrors]   = useState({})
-  const [status, setStatus]   = useState(null)   // null | 'loading' | 'success' | 'error'
-  const [apiMsg, setApiMsg]   = useState('')
-  const [modal, setModal]     = useState(null)   // { studentId, name }
+  const [form, setForm]     = useState(INITIAL)
+  const [errors, setErrors] = useState({})
+  const [status, setStatus] = useState(null)
+  const [apiMsg, setApiMsg] = useState('')
+  const [modal, setModal]   = useState(null)
 
-  // ===== Handlers =====
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     if (type === 'checkbox' && name === 'subjects') {
       setForm(f => ({
         ...f,
-        subjects: checked
-          ? [...f.subjects, value]
-          : f.subjects.filter(s => s !== value),
+        subjects: checked ? [...f.subjects, value] : f.subjects.filter(s => s !== value),
       }))
     } else if (type === 'checkbox') {
       setForm(f => ({ ...f, [name]: checked }))
     } else {
       setForm(f => ({ ...f, [name]: value }))
     }
-    // Clear error on change
-    if (errors[name]) setErrors(e => ({ ...e, [name]: '' }))
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
-  // ===== Validation =====
   const validate = () => {
     const e = {}
-    if (!form.firstName.trim())   e.firstName = 'First name is required.'
-    if (!form.lastName.trim())    e.lastName  = 'Last name is required.'
-    if (!form.dob)                e.dob       = 'Date of birth is required.'
-    if (!form.gender)             e.gender    = 'Please select a gender.'
-    if (!form.email.trim())       e.email     = 'Email is required.'
+    if (!form.firstName.trim())      e.firstName      = 'First name is required.'
+    if (!form.lastName.trim())       e.lastName       = 'Last name is required.'
+    if (!form.dob)                   e.dob            = 'Date of birth is required.'
+    if (!form.gender)                e.gender         = 'Please select a gender.'
+    if (!form.email.trim())          e.email          = 'Email is required.'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email.'
-    if (!form.phone.trim())       e.phone     = 'Phone number is required.'
-    if (!form.address.trim())     e.address   = 'Address is required.'
-    if (!form.city.trim())        e.city      = 'City is required.'
-    if (!form.enrollmentYear)     e.enrollmentYear = 'Please select a year.'
-    if (!form.department)         e.department = 'Please select a department.'
-    if (!form.program)            e.program   = 'Please select a program.'
-    if (!form.emergencyName.trim()) e.emergencyName = 'Emergency contact name is required.'
-    if (!form.relationship)       e.relationship = 'Please select a relationship.'
+    if (!form.phone.trim())          e.phone          = 'Phone number is required.'
+    if (!form.address.trim())        e.address        = 'Address is required.'
+    if (!form.city.trim())           e.city           = 'City is required.'
+    if (!form.enrollmentYear)        e.enrollmentYear = 'Please select a year.'
+    if (!form.department)            e.department     = 'Please select a department.'
+    if (!form.program)               e.program        = 'Please select a program.'
+    if (!form.emergencyName.trim())  e.emergencyName  = 'Emergency contact name is required.'
+    if (!form.relationship)          e.relationship   = 'Please select a relationship.'
     if (!form.emergencyPhone.trim()) e.emergencyPhone = 'Emergency phone is required.'
-    if (!form.terms)              e.terms     = 'You must agree to the terms.'
+    if (!form.terms)                 e.terms          = 'You must agree to the terms.'
     return e
   }
 
-  // ===== Submit =====
   const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
@@ -71,7 +79,6 @@ export default function RegistrationForm({ onRegistered }) {
       document.getElementById(firstKey)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
-
     setStatus('loading')
     try {
       const res  = await api.post('/api/students', form)
@@ -94,19 +101,7 @@ export default function RegistrationForm({ onRegistered }) {
 
   const handleReset = () => { setForm(INITIAL); setErrors({}); setStatus(null); setApiMsg('') }
 
-  // ===== Field helpers =====
-  const F = ({ id, label, required, children, hint }) => (
-    <div className="form-group">
-      <label htmlFor={id}>
-        {label} {required && <span className="req">*</span>}
-      </label>
-      {children}
-      {errors[id] && <span className="err">{errors[id]}</span>}
-      {hint && !errors[id] && <span className="hint">{hint}</span>}
-    </div>
-  )
-
-  const inputCls = (id) => `field ${errors[id] ? 'invalid' : ''}`
+  const cls = (id) => `field ${errors[id] ? 'invalid' : ''}`
 
   return (
     <div className="rf-container">
@@ -120,7 +115,6 @@ export default function RegistrationForm({ onRegistered }) {
           <Link to="/login" className="admin-link">🔐 Admin Login</Link>
         </div>
 
-        {/* API error banner */}
         {status === 'error' && (
           <div className="banner banner-error">⚠️ {apiMsg}</div>
         )}
@@ -129,24 +123,24 @@ export default function RegistrationForm({ onRegistered }) {
 
           {/* ── Personal ── */}
           <section className="rf-section">
-            <h3 className="section-title">Personal Information</h3>
+            <h3 className="section-title">👤 Personal Information</h3>
             <div className="row-2">
-              <F id="firstName" label="First Name" required>
-                <input id="firstName" name="firstName" className={inputCls('firstName')}
+              <FormField id="firstName" label="First Name" required error={errors.firstName}>
+                <input id="firstName" name="firstName" className={cls('firstName')}
                   value={form.firstName} onChange={handleChange} placeholder="First name" />
-              </F>
-              <F id="lastName" label="Last Name" required>
-                <input id="lastName" name="lastName" className={inputCls('lastName')}
+              </FormField>
+              <FormField id="lastName" label="Last Name" required error={errors.lastName}>
+                <input id="lastName" name="lastName" className={cls('lastName')}
                   value={form.lastName} onChange={handleChange} placeholder="Last name" />
-              </F>
+              </FormField>
             </div>
             <div className="row-2">
-              <F id="dob" label="Date of Birth" required>
-                <input id="dob" name="dob" type="date" className={inputCls('dob')}
+              <FormField id="dob" label="Date of Birth" required error={errors.dob}>
+                <input id="dob" name="dob" type="date" className={cls('dob')}
                   value={form.dob} onChange={handleChange} />
-              </F>
-              <F id="gender" label="Gender" required>
-                <select id="gender" name="gender" className={inputCls('gender')}
+              </FormField>
+              <FormField id="gender" label="Gender" required error={errors.gender}>
+                <select id="gender" name="gender" className={cls('gender')}
                   value={form.gender} onChange={handleChange}>
                   <option value="">-- Select --</option>
                   <option value="male">Male</option>
@@ -154,66 +148,66 @@ export default function RegistrationForm({ onRegistered }) {
                   <option value="other">Other</option>
                   <option value="prefer_not">Prefer not to say</option>
                 </select>
-              </F>
+              </FormField>
             </div>
-            <F id="nationality" label="Nationality">
+            <FormField id="nationality" label="Nationality" error={errors.nationality}>
               <input id="nationality" name="nationality" className="field"
                 value={form.nationality} onChange={handleChange} placeholder="Nationality" />
-            </F>
+            </FormField>
           </section>
 
           {/* ── Contact ── */}
           <section className="rf-section">
-            <h3 className="section-title">Contact Information</h3>
-            <F id="email" label="Email Address" required>
-              <input id="email" name="email" type="email" className={inputCls('email')}
+            <h3 className="section-title">📞 Contact Information</h3>
+            <FormField id="email" label="Email Address" required error={errors.email}>
+              <input id="email" name="email" type="email" className={cls('email')}
                 value={form.email} onChange={handleChange} placeholder="example@email.com" />
-            </F>
+            </FormField>
             <div className="row-2">
-              <F id="phone" label="Phone Number" required>
-                <input id="phone" name="phone" type="tel" className={inputCls('phone')}
-                  value={form.phone} onChange={handleChange} placeholder="+1 234 567 8900" />
-              </F>
-              <F id="altPhone" label="Alternate Phone">
+              <FormField id="phone" label="Phone Number" required error={errors.phone}>
+                <input id="phone" name="phone" type="tel" className={cls('phone')}
+                  value={form.phone} onChange={handleChange} placeholder="+91 98765 43210" />
+              </FormField>
+              <FormField id="altPhone" label="Alternate Phone" error={errors.altPhone}>
                 <input id="altPhone" name="altPhone" type="tel" className="field"
-                  value={form.altPhone} onChange={handleChange} placeholder="+1 234 567 8900" />
-              </F>
+                  value={form.altPhone} onChange={handleChange} placeholder="+91 98765 43210" />
+              </FormField>
             </div>
-            <F id="address" label="Address" required>
-              <textarea id="address" name="address" className={inputCls('address')} rows={3}
+            <FormField id="address" label="Address" required error={errors.address}>
+              <textarea id="address" name="address" className={cls('address')} rows={3}
                 value={form.address} onChange={handleChange} placeholder="Full address" />
-            </F>
+            </FormField>
             <div className="row-2">
-              <F id="city" label="City" required>
-                <input id="city" name="city" className={inputCls('city')}
+              <FormField id="city" label="City" required error={errors.city}>
+                <input id="city" name="city" className={cls('city')}
                   value={form.city} onChange={handleChange} placeholder="City" />
-              </F>
-              <F id="zipCode" label="ZIP / Postal Code">
+              </FormField>
+              <FormField id="zipCode" label="ZIP / Postal Code" error={errors.zipCode}>
                 <input id="zipCode" name="zipCode" className="field"
                   value={form.zipCode} onChange={handleChange} placeholder="ZIP Code" />
-              </F>
+              </FormField>
             </div>
           </section>
 
           {/* ── Academic ── */}
           <section className="rf-section">
-            <h3 className="section-title">Academic Information</h3>
+            <h3 className="section-title">🎓 Academic Information</h3>
             <div className="row-2">
-              <F id="studentId" label="Student ID" hint="Auto-generated if left blank">
+              <FormField id="studentId" label="Student ID" hint="Auto-generated if left blank" error={errors.studentId}>
                 <input id="studentId" name="studentId" className="field"
                   value={form.studentId} onChange={handleChange} placeholder="Optional" />
-              </F>
-              <F id="enrollmentYear" label="Enrollment Year" required>
-                <select id="enrollmentYear" name="enrollmentYear" className={inputCls('enrollmentYear')}
+              </FormField>
+              <FormField id="enrollmentYear" label="Enrollment Year" required error={errors.enrollmentYear}>
+                <select id="enrollmentYear" name="enrollmentYear" className={cls('enrollmentYear')}
                   value={form.enrollmentYear} onChange={handleChange}>
                   <option value="">-- Select Year --</option>
-                  {[2026,2025,2024,2023].map(y => <option key={y} value={y}>{y}</option>)}
+                  {[2026, 2025, 2024, 2023].map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
-              </F>
+              </FormField>
             </div>
             <div className="row-2">
-              <F id="department" label="Department" required>
-                <select id="department" name="department" className={inputCls('department')}
+              <FormField id="department" label="Department" required error={errors.department}>
+                <select id="department" name="department" className={cls('department')}
                   value={form.department} onChange={handleChange}>
                   <option value="">-- Select --</option>
                   <option value="cs">Computer Science</option>
@@ -225,9 +219,9 @@ export default function RegistrationForm({ onRegistered }) {
                   <option value="law">Law</option>
                   <option value="arts">Arts & Humanities</option>
                 </select>
-              </F>
-              <F id="program" label="Program" required>
-                <select id="program" name="program" className={inputCls('program')}
+              </FormField>
+              <FormField id="program" label="Program" required error={errors.program}>
+                <select id="program" name="program" className={cls('program')}
                   value={form.program} onChange={handleChange}>
                   <option value="">-- Select --</option>
                   <option value="bachelor">Bachelor's Degree</option>
@@ -236,7 +230,7 @@ export default function RegistrationForm({ onRegistered }) {
                   <option value="diploma">Diploma</option>
                   <option value="certificate">Certificate</option>
                 </select>
-              </F>
+              </FormField>
             </div>
             <div className="form-group">
               <label>Subjects of Interest</label>
@@ -254,14 +248,14 @@ export default function RegistrationForm({ onRegistered }) {
 
           {/* ── Emergency ── */}
           <section className="rf-section">
-            <h3 className="section-title">Emergency Contact</h3>
+            <h3 className="section-title">🚨 Emergency Contact</h3>
             <div className="row-2">
-              <F id="emergencyName" label="Contact Name" required>
-                <input id="emergencyName" name="emergencyName" className={inputCls('emergencyName')}
+              <FormField id="emergencyName" label="Contact Name" required error={errors.emergencyName}>
+                <input id="emergencyName" name="emergencyName" className={cls('emergencyName')}
                   value={form.emergencyName} onChange={handleChange} placeholder="Full name" />
-              </F>
-              <F id="relationship" label="Relationship" required>
-                <select id="relationship" name="relationship" className={inputCls('relationship')}
+              </FormField>
+              <FormField id="relationship" label="Relationship" required error={errors.relationship}>
+                <select id="relationship" name="relationship" className={cls('relationship')}
                   value={form.relationship} onChange={handleChange}>
                   <option value="">-- Select --</option>
                   <option value="parent">Parent</option>
@@ -270,12 +264,12 @@ export default function RegistrationForm({ onRegistered }) {
                   <option value="spouse">Spouse</option>
                   <option value="other">Other</option>
                 </select>
-              </F>
+              </FormField>
             </div>
-            <F id="emergencyPhone" label="Emergency Phone" required>
-              <input id="emergencyPhone" name="emergencyPhone" type="tel" className={inputCls('emergencyPhone')}
-                value={form.emergencyPhone} onChange={handleChange} placeholder="+1 234 567 8900" />
-            </F>
+            <FormField id="emergencyPhone" label="Emergency Phone" required error={errors.emergencyPhone}>
+              <input id="emergencyPhone" name="emergencyPhone" type="tel" className={cls('emergencyPhone')}
+                value={form.emergencyPhone} onChange={handleChange} placeholder="+91 98765 43210" />
+            </FormField>
           </section>
 
           {/* ── Terms ── */}
@@ -294,7 +288,7 @@ export default function RegistrationForm({ onRegistered }) {
           <div className="rf-actions">
             <button type="button" className="btn btn-secondary" onClick={handleReset}>Reset</button>
             <button type="submit" className="btn btn-primary" disabled={status === 'loading'}>
-              {status === 'loading' ? '⏳ Registering...' : 'Register Now'}
+              {status === 'loading' ? '⏳ Registering...' : '🚀 Register Now'}
             </button>
           </div>
 
@@ -308,7 +302,7 @@ export default function RegistrationForm({ onRegistered }) {
             <div className="modal-icon">✅</div>
             <h2>Registration Successful!</h2>
             <p>Welcome, <strong>{modal.name}</strong>!</p>
-            <p className="student-id-badge">Student ID: <strong>{modal.studentId}</strong></p>
+            <p className="student-id-badge">🪪 Student ID: <strong>{modal.studentId}</strong></p>
             <p className="modal-sub">Your details have been saved to the database.</p>
             <button className="btn btn-primary" onClick={() => setModal(null)}>Done</button>
           </div>
