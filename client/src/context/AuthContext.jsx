@@ -1,18 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [admin, setAdmin]     = useState(null)
-  const [loading, setLoading] = useState(true)   // checking stored token on mount
+  const [loading, setLoading] = useState(true)
 
   // On mount — restore session from localStorage
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      axios.get('/api/auth/me')
+      api.get('/api/auth/me')
         .then(res => {
           if (res.data.success) setAdmin(res.data.admin)
           else logout()
@@ -25,11 +24,10 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (email, password) => {
-    const res = await axios.post('/api/auth/login', { email, password })
+    const res = await api.post('/api/auth/login', { email, password })
     if (res.data.success) {
       const { token, admin } = res.data
       localStorage.setItem('adminToken', token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setAdmin(admin)
       return { success: true }
     }
@@ -38,7 +36,6 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('adminToken')
-    delete axios.defaults.headers.common['Authorization']
     setAdmin(null)
   }
 

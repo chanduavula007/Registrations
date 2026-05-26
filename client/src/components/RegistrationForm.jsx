@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import api from '../api'
 import './RegistrationForm.css'
 
 const INITIAL = {
@@ -73,12 +74,8 @@ export default function RegistrationForm({ onRegistered }) {
 
     setStatus('loading')
     try {
-      const res  = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
+      const res  = await api.post('/api/students', form)
+      const data = res.data
       if (data.success) {
         setStatus('success')
         setModal({ studentId: data.data.studentId, name: data.data.name })

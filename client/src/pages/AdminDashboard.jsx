@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../api'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import './AdminDashboard.css'
@@ -28,7 +28,7 @@ export default function AdminDashboard() {
   const fetchStudents = async (q = '') => {
     setLoading(true); setError('')
     try {
-      const res = await axios.get(`/api/students${q ? `?search=${q}` : ''}`)
+      const res = await api.get(`/api/students${q ? `?search=${q}` : ''}`)
       if (res.data.success) {
         setStudents(res.data.data)
         // Compute stats
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
     if (!window.confirm('Delete this student record permanently?')) return
     setDeleting(id)
     try {
-      await axios.delete(`/api/students/${id}`)
+      await api.delete(`/api/students/${id}`)
       setStudents(s => s.filter(st => st._id !== id))
       if (selected?._id === id) setSelected(null)
       setStats(prev => ({ ...prev, total: prev.total - 1 }))
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const res = await axios.get('/api/students/export/excel', { responseType: 'blob' })
+      const res = await api.get('/api/students/export/excel', { responseType: 'blob' })
       const url  = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
       link.href  = url
