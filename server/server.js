@@ -9,7 +9,21 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 
 // ===== Middleware =====
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(o => o.trim())
+  : ['http://localhost:5173'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // ===== Routes =====
@@ -21,19 +35,32 @@ app.get('/', (req, res) => {
   res.json({ message: '🎓 Student Registration API is running.' });
 });
 
-// ===== Seed default admin =====
+// ===== Seed default admins =====
 const seedAdmin = async () => {
   const Admin = require('./models/Admin');
-  const existing = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
-  if (!existing) {
-    await Admin.create({
+
+  const admins = [
+    {
       email:    process.env.ADMIN_EMAIL,
       password: process.env.ADMIN_PASSWORD,
       name:     'Administrator',
-    });
-    console.log(`✅ Admin seeded → ${process.env.ADMIN_EMAIL} / ${process.env.ADMIN_PASSWORD}`);
-  } else {
-    console.log(`ℹ️  Admin already exists: ${process.env.ADMIN_EMAIL}`);
+    },
+    {
+      email:    'chanduavula007@gmail.com',
+      password: 'Chandu@0007',
+      name:     'Chandu Avula',
+    },
+  ];
+
+  for (const a of admins) {
+    if (!a.email) continue;
+    const existing = await Admin.findOne({ email: a.email.toLowerCase() });
+    if (!existing) {
+      await Admin.create(a);
+      console.log(`✅ Admin seeded → ${a.email}`);
+    } else {
+      console.log(`ℹ️  Admin already exists: ${a.email}`);
+    }
   }
 };
 

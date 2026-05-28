@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import api from '../api'
 import './StudentList.css'
 
 const DEPT_MAP = {
@@ -20,9 +21,8 @@ export default function StudentList() {
   const fetchStudents = async () => {
     setLoading(true); setError('')
     try {
-      const res  = await fetch('/api/students')
-      const data = await res.json()
-      if (data.success) setStudents(data.data)
+      const res  = await api.get('/api/students')
+      if (res.data.success) setStudents(res.data.data)
       else setError('Failed to load students.')
     } catch {
       setError('Cannot connect to server.')
@@ -37,9 +37,8 @@ export default function StudentList() {
     if (!window.confirm('Delete this student record?')) return
     setDeleting(id)
     try {
-      const res  = await fetch(`/api/students/${id}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (data.success) {
+      const res = await api.delete(`/api/students/${id}`)
+      if (res.data.success) {
         setStudents(s => s.filter(st => st._id !== id))
         if (selected?._id === id) setSelected(null)
       }
