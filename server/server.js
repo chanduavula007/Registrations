@@ -45,10 +45,11 @@ const seedAdmin = async () => {
 };
 
 // ===== MongoDB =====
-// Always build URI from known credentials to avoid env var encoding issues
+// Uses local MongoDB by default (set MONGO_URI in .env for Atlas)
 const _user = 'chanduavula_007';
-const _pass = encodeURIComponent('Chandu@0007'); // safely encodes @ → %40
-const MONGO_URI = `mongodb+srv://${_user}:${_pass}@cluster0.imle2v2.mongodb.net/student_registration?retryWrites=true&w=majority&appName=Cluster0`;
+const _pass = encodeURIComponent('Chandu@0007');
+const MONGO_URI = process.env.MONGO_URI ||
+  `mongodb+srv://${_user}:${_pass}@cluster0.imle2v2.mongodb.net/student_registration?retryWrites=true&w=majority&appName=Cluster0`;
 
 mongoose
   .connect(MONGO_URI)
