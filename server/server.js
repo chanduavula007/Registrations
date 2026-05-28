@@ -2,6 +2,7 @@ const express  = require('express');
 const mongoose = require('mongoose');
 const cors     = require('cors');
 const dotenv   = require('dotenv');
+const path     = require('path');
 
 dotenv.config();
 
@@ -9,30 +10,21 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 
 // ===== Middleware =====
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map(o => o.trim())
-  : ['http://localhost:5173'];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-}));
+// Allow all origins (tunnel URLs change every time, so wildcard is fine)
+app.use(cors({ origin: '*', credentials: false }));
 app.use(express.json());
 
-// ===== Routes =====
+// ===== API Routes =====
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 
-// Health check
-app.get('/', (req, res) => {
-  res.json({ message: '🎓 Student Registration API is running.' });
+// ===== Serve React Frontend =====
+const clientDist = path.join(__dirname, '..', 'client', 'dist');
+app.use(express.static(clientDist));
+
+// For any non-API route, serve the React app (SPA fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
 });
 
 // ===== Seed default admins =====
@@ -70,8 +62,9 @@ mongoose
   .then(async () => {
     console.log('✅ MongoDB connected successfully');
     await seedAdmin();
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`📡 To share on internet, run: npx localtunnel --port ${PORT}`);
     });
   })
   .catch((err) => {

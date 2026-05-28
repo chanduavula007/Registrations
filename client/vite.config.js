@@ -5,12 +5,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    host: true,          // expose on network so other devices can connect
+    host: true,   // expose on local network for dev
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
     },
   },
+  // No base needed — served from Express at root
 })
