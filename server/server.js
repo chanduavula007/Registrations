@@ -17,17 +17,14 @@ app.use(express.json());
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 
-// ===== Serve React Frontend (for Render — single server setup) =====
+// ===== Serve React Frontend =====
 const clientDist = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(clientDist));
 
-// SPA fallback — all non-API routes serve index.html
 app.get('*', (req, res) => {
   const indexPath = path.join(clientDist, 'index.html');
   res.sendFile(indexPath, (err) => {
-    if (err) {
-      res.status(200).json({ message: 'Student Registration API is running.' });
-    }
+    if (err) res.status(200).json({ message: 'Student Registration API is running.' });
   });
 });
 
@@ -35,11 +32,10 @@ app.get('*', (req, res) => {
 const seedAdmin = async () => {
   const Admin = require('./models/Admin');
   const admins = [
-    { email: process.env.ADMIN_EMAIL,    password: process.env.ADMIN_PASSWORD, name: 'Administrator' },
-    { email: 'chanduavula007@gmail.com', password: process.env.ADMIN2_PASSWORD || 'Chandu0007', name: 'Chandu Avula' },
+    { email: 'admin@school.com',          password: 'Admin@123',  name: 'Administrator' },
+    { email: 'chanduavula007@gmail.com',   password: 'Chandu0007', name: 'Chandu Avula'  },
   ];
   for (const a of admins) {
-    if (!a.email) continue;
     const existing = await Admin.findOne({ email: a.email.toLowerCase() });
     if (!existing) {
       await Admin.create(a);
@@ -49,12 +45,9 @@ const seedAdmin = async () => {
 };
 
 // ===== MongoDB =====
-const MONGO_URI = process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-  console.error('❌ MONGO_URI is not set in environment variables.');
-  process.exit(1);
-}
+// Password: Chandu@0007 → encoded as Chandu%400007
+const MONGO_URI = process.env.MONGO_URI ||
+  'mongodb+srv://chanduavula_007:Chandu%400007@cluster0.imle2v2.mongodb.net/student_registration?retryWrites=true&w=majority&appName=Cluster0';
 
 mongoose
   .connect(MONGO_URI)
