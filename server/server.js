@@ -19,12 +19,20 @@ app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 
 // ===== Serve React Frontend =====
+// Works both locally (../client/dist) and on Render (same relative path from repo root)
 const clientDist = path.join(__dirname, '..', 'client', 'dist');
+console.log(`📁 Serving static files from: ${clientDist}`);
 app.use(express.static(clientDist));
 
 // For any non-API route, serve the React app (SPA fallback)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(clientDist, 'index.html'));
+  const indexPath = path.join(clientDist, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('❌ Could not serve index.html:', err.message);
+      res.status(404).json({ error: 'Frontend not found. Build may be missing.' });
+    }
+  });
 });
 
 // ===== Seed default admins =====
